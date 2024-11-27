@@ -53,6 +53,8 @@ public class AppProperties {
   private Boolean filter_search_enabled = true;
   private Boolean graphql_enabled = false;
   private Boolean binary_storage_enabled = false;
+	private BinaryStorage binary_storage = BinaryStorage.Database;
+	private MinioBinaryStorage binary_storage_minio = new MinioBinaryStorage();
   private Integer inline_resource_storage_below_size = 0;
   private Boolean bulk_export_enabled = false;
   private Boolean bulk_import_enabled = false;
@@ -465,6 +467,22 @@ public Cors getCors() {
     this.binary_storage_enabled = binary_storage_enabled;
   }
 
+	public BinaryStorage getBinary_storage() {
+		return binary_storage;
+	}
+
+	public void setBinary_storage(BinaryStorage binary_storage) {
+		this.binary_storage = binary_storage;
+	}
+
+	public void setBinary_storage_minio(MinioBinaryStorage binary_storage_minio) {
+		this.binary_storage_minio = binary_storage_minio;
+	}
+
+	public MinioBinaryStorage getBinary_storage_minio() {
+		return binary_storage_minio;
+	}
+
 	public Integer getInline_resource_storage_below_size() {
 		return inline_resource_storage_below_size;
 	}
@@ -678,6 +696,56 @@ public Cors getCors() {
 
 	public void setUserRequestRetryVersionConflictsInterceptorEnabled(Boolean userRequestRetryVersionConflictsInterceptorEnabled) {
 		this.userRequestRetryVersionConflictsInterceptorEnabled = userRequestRetryVersionConflictsInterceptorEnabled;
+	}
+
+	public enum BinaryStorage { Database, Minio }
+
+	public static class MinioBinaryStorage {
+		private String base_url;
+		private String access_key;
+		private String secret_key;
+		private String bucket_name;
+		private String base_path;
+
+		public String getBase_url() {
+			return base_url;
+		}
+
+		public void setBase_url(String base_url) {
+			this.base_url = base_url;
+		}
+
+		public String getAccess_key() {
+			return access_key;
+		}
+
+		public void setAccess_key(String access_key) {
+			this.access_key = access_key;
+		}
+
+		public String getSecret_key() {
+			return secret_key;
+		}
+
+		public void setSecret_key(String secret_key) {
+			this.secret_key = secret_key;
+		}
+
+		public String getBucket_name() {
+			return bucket_name;
+		}
+
+		public void setBucket_name(String bucket_name) {
+			this.bucket_name = bucket_name;
+		}
+
+		public String getBase_path() {
+			return base_path;
+		}
+
+		public void setBase_path(String base_path) {
+			this.base_path = base_path;
+		}
 	}
 
 	public static class Cors {

@@ -9,11 +9,14 @@ import ca.uhn.fhir.jpa.model.config.PartitionSettings.CrossPartitionReferenceMod
 import ca.uhn.fhir.jpa.model.config.SubscriptionSettings;
 import ca.uhn.fhir.jpa.model.entity.StorageSettings;
 import ca.uhn.fhir.jpa.starter.AppProperties;
+import ca.uhn.fhir.jpa.starter.binary.MinioBinaryStorageSvc;
+import ca.uhn.fhir.jpa.starter.AppProperties.BinaryStorage;
 import ca.uhn.fhir.jpa.starter.util.JpaHibernatePropertiesProvider;
 import ca.uhn.fhir.jpa.subscription.match.deliver.email.EmailSenderImpl;
 import ca.uhn.fhir.jpa.subscription.match.deliver.email.IEmailSender;
 import ca.uhn.fhir.rest.server.mail.MailConfig;
 import ca.uhn.fhir.rest.server.mail.MailSvc;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import org.hl7.fhir.r4.model.Bundle.BundleType;
 import org.springframework.boot.env.YamlPropertySourceLoader;
@@ -276,8 +279,20 @@ public class FhirServerConfigCommon {
 
 	@Lazy
 	@Bean
-	public IBinaryStorageSvc binaryStorageSvc(AppProperties appProperties) {
-		DatabaseBinaryContentStorageSvcImpl binaryStorageSvc = new DatabaseBinaryContentStorageSvcImpl();
+	public IBinaryStorageSvc binaryStorageSvc(AppProperties appProperties, ObjectMapper objectMapper) {
+		var minioProperties = appProperties.getBinary_storage_minio();
+		assert appProperties.getBinary_storage() != BinaryStorage.Minio || minioProperties != null;
+
+		var binaryStorageSvc = appProperties.getBinary_storage() == BinaryStorage.Database ?
+			new DatabaseBinaryContentStorageSvcImpl():
+			new MinioBinaryStorageSvc(
+				minioProperties.getBase_url(),
+				minioProperties.getAccess_key(),
+				minioProperties.getSecret_key(),
+				minioProperties.getBucket_name(),
+				minioProperties.getBase_path(),
+				objectMapper
+			);
 
 		if (appProperties.getMax_binary_size() != null) {
 			binaryStorageSvc.setMaximumBinarySize(appProperties.getMax_binary_size());
